@@ -1,160 +1,160 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 enum Role {
-    CUSTOMER
-      AGENT
-        ADMIN
+  CUSTOMER
+  AGENT
+  ADMIN
 }
 
 enum TicketStatus {
-    OPEN
-      IN_PROGRESS
-        WAITING_FOR_CUSTOMER
-          RESOLVED
-            CLOSED
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_CUSTOMER
+  RESOLVED
+  CLOSED
 }
 
 enum TicketPriority {
-    LOW
-      MEDIUM
-        HIGH
-          URGENT
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 enum NotificationType {
-    NEW_TICKET
-      NEW_REPLY
-        TICKET_ASSIGNED
-          STATUS_CHANGED
+  NEW_TICKET
+  NEW_REPLY
+  TICKET_ASSIGNED
+  STATUS_CHANGED
 }
 
 model User {
-    id        String   @id @default(cuid())
-      name      String
-        email     String   @unique
-          password  String
-            role      Role     @default(CUSTOMER)
-              createdAt DateTime @default(now())
-                updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-                  customerTickets Ticket[] @relation("CustomerTickets")
-                    assignedTickets Ticket[] @relation("AssignedTickets")
+  customerTickets Ticket[] @relation("CustomerTickets")
+  assignedTickets Ticket[] @relation("AssignedTickets")
 
-                      comments      Comment[]
-                        auditLogs     AuditLog[]
-                          notifications Notification[]
+  comments      Comment[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
 }
 
 model Ticket {
-    id          String         @id @default(cuid())
-      title       String
-        description String
-          status      TicketStatus   @default(OPEN)
-            priority    TicketPriority @default(MEDIUM)
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
 
-              customerId String
-                agentId    String?
+  customerId String
+  agentId    String?
 
-                  createdAt DateTime @default(now())
-                    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-                      customer User  @relation(
-                            "CustomerTickets",
-                                fields: [customerId],
-                                    references: [id],
-                                        onDelete: Cascade
-                      )
+  customer User @relation(
+    "CustomerTickets",
+    fields: [customerId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-                        agent User? @relation(
-                              "AssignedTickets",
-                                  fields: [agentId],
-                                      references: [id],
-                                          onDelete: SetNull
-                        )
+  agent User? @relation(
+    "AssignedTickets",
+    fields: [agentId],
+    references: [id],
+    onDelete: SetNull
+  )
 
-                          comments  Comment[]
-                            auditLogs AuditLog[]
+  comments  Comment[]
+  auditLogs AuditLog[]
+
+  @@index([customerId])
+  @@index([agentId])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
 }
 
 model Comment {
-    id        String   @id @default(cuid())
-      content   String
-        createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
 
-          ticketId String
-            userId   String
+  ticketId String
+  userId   String
 
-              ticket Ticket @relation(
-                    fields: [ticketId],
-                        references: [id],
-                            onDelete: Cascade
-              )
+  ticket Ticket @relation(
+    fields: [ticketId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-                user User @relation(
-                      fields: [userId],
-                          references: [id],
-                              onDelete: Cascade
-                )
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  @@index([ticketId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model AuditLog {
-    id        String   @id @default(cuid())
-      action    String
-        metadata  Json?
-          createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
 
-            ticketId String
-              userId   String
+  ticketId String
+  userId   String
 
-                ticket Ticket @relation(
-                      fields: [ticketId],
-                          references: [id],
-                              onDelete: Cascade
-                )
+  ticket Ticket @relation(
+    fields: [ticketId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-                  user User @relation(
-                        fields: [userId],
-                            references: [id],
-                                onDelete: Cascade
-                  )
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  @@index([ticketId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Notification {
-    id        String           @id @default(cuid())
-      type      NotificationType
-        message   String
-          read      Boolean          @default(false)
-            createdAt DateTime         @default(now())
+  id        String           @id @default(cuid())
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
 
-              userId String
+  userId String
 
-                user User @relation(
-                      fields: [userId],
-                          references: [id],
-                              onDelete: Cascade
-                )
-}
-                )
-}
-                  )
-                )
-}
-                )
-              )
-}
-                        )
-                      )
-}
-}
-}
-}
-}
-}
-}
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
 }
