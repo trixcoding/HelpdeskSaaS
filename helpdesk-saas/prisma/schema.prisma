@@ -64,19 +64,8 @@ model Ticket {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  customer User @relation(
-    "CustomerTickets",
-    fields: [customerId],
-    references: [id],
-    onDelete: Cascade
-  )
-
-  agent User? @relation(
-    "AssignedTickets",
-    fields: [agentId],
-    references: [id],
-    onDelete: SetNull
-  )
+  customer User  @relation("CustomerTickets", fields: [customerId], references: [id], onDelete: Cascade)
+  agent    User? @relation("AssignedTickets", fields: [agentId], references: [id], onDelete: SetNull)
 
   comments  Comment[]
   auditLogs AuditLog[]
@@ -96,17 +85,8 @@ model Comment {
   ticketId String
   userId   String
 
-  ticket Ticket @relation(
-    fields: [ticketId],
-    references: [id],
-    onDelete: Cascade
-  )
-
-  user User @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Cascade
-  )
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([ticketId])
   @@index([userId])
@@ -122,17 +102,8 @@ model AuditLog {
   ticketId String
   userId   String
 
-  ticket Ticket @relation(
-    fields: [ticketId],
-    references: [id],
-    onDelete: Cascade
-  )
-
-  user User @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Cascade
-  )
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([ticketId])
   @@index([userId])
@@ -148,11 +119,7 @@ model Notification {
 
   userId String
 
-  user User @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Cascade
-  )
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([read])
