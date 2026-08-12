@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-
+import CommentForm from "@/components/comment-form";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -151,6 +151,43 @@ export default async function TicketPage({
             </div>
           )}
         </section>
+
+<section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+  <h2 className="text-xl font-semibold text-slate-700">
+    Conversation
+  </h2>
+
+  {ticket.comments.length === 0 ? (
+    <p className="mt-6 text-sm text-gray-500">
+      No replies yet.
+    </p>
+  ) : (
+    <div className="mt-6 space-y-4">
+      {ticket.comments.map((comment) => (
+        <div
+          key={comment.id}
+          className="rounded-xl bg-gray-50 p-4"
+        >
+          <div className="flex items-center justify-between">
+            <p className="font-medium text-slate-700">
+              {comment.user.name}
+            </p>
+
+            <span className="text-xs text-gray-400">
+              {comment.user.role}
+            </span>
+          </div>
+
+          <p className="mt-3 whitespace-pre-wrap text-gray-600">
+            {comment.content}
+          </p>
+        </div>
+      ))}
+    </div>
+  )}
+
+  <CommentForm ticketId={ticket.id} />
+</section>
       </div>
     </main>
   );
