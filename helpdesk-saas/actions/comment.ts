@@ -93,6 +93,18 @@ export async function createCommentAction(
       },
     });
 
+await prisma.ticket.update({
+  where: {
+    id: ticket.id,
+  },
+  data: {
+    status:
+      user.role === "CUSTOMER"
+        ? "IN_PROGRESS"
+        : "WAITING_FOR_CUSTOMER",
+  },
+});
+
   return {
     success: true,
     commentId: comment.id,
