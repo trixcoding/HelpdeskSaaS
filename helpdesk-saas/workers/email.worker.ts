@@ -2,16 +2,30 @@ import "dotenv/config";
 
 import { Worker } from "bullmq";
 
-import { redis } from "@/lib/redis";
-import { resend } from "@/lib/email";
+import IORedis from "ioredis";
 
-import {
-  type EmailJob,
-} from "@/queues/email.queue";
+import { Resend } from "resend";
 
 import {
   newTicketEmail,
-} from "@/emails/new-ticket";
+} from "../emails/new-ticket";
+
+import type {
+  EmailJob,
+} from "../queues/email.queue";
+
+const redis =
+  new IORedis(
+    process.env.REDIS_URL!,
+    {
+      maxRetriesPerRequest: null,
+    },
+  );
+
+const resend =
+  new Resend(
+    process.env.RESEND_API_KEY,
+  );
 
 const worker =
   new Worker<EmailJob>(
@@ -19,7 +33,7 @@ const worker =
 
     async (job) => {
       console.log(
-        `Processing job: ${job.id}`,
+        `Processing job ${job.id}`,
       );
 
       if (
@@ -40,32 +54,17 @@ const worker =
             description,
           });
 
-        const result =
-          await resend.emails.send({
-            from:
-              process.env.EMAIL_FROM!,
+        await resend.emails.send({
+          from:
+            process.env.EMAIL_FROM!,
 
-            to: customerEmail,
+          to: customerEmail,
 
-            subject:
-              `Ticket Created: ${title}`,
+          subject:
+            `Ticket Created: ${title}`,
 
-            html,
-          });
-
-        console.log(
-          "Email sent:",
-          result,
-        );
-      }
-
-      if (
-        job.data.type ===
-        "NEW_REPLY"
-      ) {
-        console.log(
-          "NEW_REPLY is not implemented yet.",
-        );
+          html,
+        });
       }
     },
 
@@ -89,12 +88,12 @@ worker.on(
   "failed",
   (job, error) => {
     console.error(
-      `Job ${job?.id} failed`,
+      `Job ${job?.id} failed:`,
       error,
     );
   },
 );
 
 console.log(
-  "Email worker started...",
+  "Email worker started",
 );
