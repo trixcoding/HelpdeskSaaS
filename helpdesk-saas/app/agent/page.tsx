@@ -1,6 +1,6 @@
 import { requireAgent } from "@/lib/authorization";
 import LogoutButton from "@/components/logout-button";
-
+import Link from "next/link";
 export default async function AgentPage() {
   const user = await requireAgent();
 
@@ -33,6 +33,13 @@ export default async function AgentPage() {
           </p>
         </div>
       </div>
+
+<Link
+  href="/agent/tickets"
+  className="mt-6 inline-block rounded-lg bg-blue-400 px-5 py-3 font-medium text-white transition hover:bg-blue-500"
+>
+  View Tickets
+</Link>
     </main>
   );
 }
