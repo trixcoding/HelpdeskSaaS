@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-
+import { emailQueue } from "@/queues/email.queue";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -62,6 +62,21 @@ export async function createTicketAction(
       customerId: user.id,
     },
   });
+
+await emailQueue.add(
+  "new-ticket",
+  {
+    type: "NEW_TICKET",
+
+    ticketId: ticket.id,
+
+    customerName: user.name,
+    customerEmail: user.email,
+
+    title: ticket.title,
+    description: ticket.description,
+  },
+);
 
   return {
     success: true,
