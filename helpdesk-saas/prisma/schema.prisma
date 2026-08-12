@@ -49,6 +49,7 @@ model User {
   comments      Comment[]
   auditLogs     AuditLog[]
   notifications Notification[]
+  sessions Session[]
 }
 
 model Ticket {
@@ -124,4 +125,21 @@ model Notification {
   @@index([userId])
   @@index([read])
   @@index([createdAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  @@index([userId])
+  @@index([expiresAt])
 }
