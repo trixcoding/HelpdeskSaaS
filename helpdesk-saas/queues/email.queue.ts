@@ -2,9 +2,39 @@ import { Queue } from "bullmq";
 
 import { redis } from "@/lib/redis";
 
+export type NewTicketEmailJob = {
+  type: "NEW_TICKET";
+
+  ticketId: string;
+
+  customerName: string;
+  customerEmail: string;
+
+  title: string;
+  description: string;
+};
+
+export type NewReplyEmailJob = {
+  type: "NEW_REPLY";
+
+  ticketId: string;
+
+  recipientEmail: string;
+  recipientName: string;
+
+  ticketTitle: string;
+  comment: string;
+  authorName: string;
+};
+
+export type EmailJob =
+  | NewTicketEmailJob
+  | NewReplyEmailJob;
+
 export const emailQueue =
-  new Queue("email", {
+  new Queue<EmailJob>("email", {
     connection: redis,
+
     defaultJobOptions: {
       attempts: 3,
 
@@ -14,6 +44,7 @@ export const emailQueue =
       },
 
       removeOnComplete: 100,
+
       removeOnFail: 500,
     },
   });
